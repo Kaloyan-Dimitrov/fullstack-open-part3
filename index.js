@@ -81,7 +81,7 @@ app.post('/api/persons', (req, res) => {
 });
 
 app.get('/info', (req, res) => {
-    res.send(`Phonebook has info for ${persons.length} people<br><br>${new Date()}`);
+    res.send(`Phonebook has info for ${persons.length} people<br><br>${new Date()}.`);
 });
 
 const PORT = process.env.PORT || 3001;
