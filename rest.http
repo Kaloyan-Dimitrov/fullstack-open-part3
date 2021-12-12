@@ -1,0 +1,11 @@
+POST http://localhost:3001/api/persons
+content-type: application/json
+
+{
+    "name": "Kaloyan Dimitrov",
+    "number": "0889467788"
+}
+
+###
+
+DELETE http://localhost:3001/api/persons/50175
