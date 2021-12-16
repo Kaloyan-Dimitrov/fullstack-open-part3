@@ -1,6 +1,9 @@
 import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
+import Person from './models/person.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
 
@@ -15,36 +18,15 @@ morgan.token('body', function (req, res) {
 });
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'));
 
-let persons = [{
-        "id": 1,
-        "name": "Arto Hellas",
-        "number": "040-123456"
-    },
-    {
-        "id": 2,
-        "name": "Ada Lovelace",
-        "number": "39-44-5323523"
-    },
-    {
-        "id": 3,
-        "name": "Dan Abramov",
-        "number": "12-43-234345"
-    },
-    {
-        "id": 4,
-        "name": "Mary Poppendieck",
-        "number": "39-23-6423122"
-    }
-];
 
-
-app.get('/api/persons', (req, res) => {
+app.get('/api/persons', async (req, res) => {
+    const persons = await Person.find({});
     res.json(persons);
 });
 
-app.get('/api/persons/:id', (req, res) => {
+app.get('/api/persons/:id', async (req, res) => {
     const id = Number(req.params.id);
-    const person = persons.find(person => person.id === id);
+    const person = await Person.findById(id);
     if (person) {
         res.json(person);
     } else {
@@ -54,28 +36,31 @@ app.get('/api/persons/:id', (req, res) => {
 
 app.delete('/api/persons/:id', (req, res) => {
     const id = Number(req.params.id);
-    persons = persons.filter(person => person.id !== id);
+    const persons = persons.filter(person => person.id !== id);
     res.status(204).end();
 });
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', async (req, res) => {
     const body = req.body;
     if (!body.name || !body.number) {
         return res.status(400).json({
             error: 'name or number missing'
         });
     }
-    if (persons.find(person => person.name === body.name)) {
+    const personWithSameName = await Person.find({
+        name: body.name
+    });
+    if (personWithSameName[0]) {
         return res.status(400).json({
             error: 'name must be unique'
         });
     }
-    const person = {
+    const person = new Person({
         id: Math.floor(Math.random() * 100000),
         name: body.name,
-        number: body.number
-    };
-    persons = persons.concat(person);
+        phone: body.number
+    });
+    await person.save();
     res.json(person);
 });
 
